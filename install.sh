@@ -327,18 +327,6 @@ done
 echo -e "\033[36m> Git clone matek_imu test package...\033[0m"
 git clone https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon.git src/matek_imu
 
-# # Compile once to generate structure to apply patch (for libmavconn edian)
-# echo -e "\033[36m> Compiling to generate structure to apply patch...\033[0m"
-# python3.11 -m colcon build --symlink-install --cmake-args \
-#   -DPython3_EXECUTABLE="$HOME/$VIRTUAL_ENV_ROOT/bin/python3" \
-#   -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
-#   -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:\$CMAKE_MODULE_PATH \
-#   -Wno-dev \
-#   --no-warn-unused-cli \
-#   -DBUILD_TESTING=OFF \
-#   -DCMAKE_BUILD_TYPE=Release \
-#   --cmake-force-configure --packages-up-to mavlink
-
 # ------------------------------------------------------------------------------
 # Patch files for Mac OS X Installation
 printf '\n\n\033[34m'; printf '=%.0s' {1..75}; printf '\033[0m\n'
@@ -358,9 +346,6 @@ echo -e "\033[36m> Applying patch for mavlink...\033[0m"
 curl -sSL \
   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavlink_generator.patch \
   | patch -p1 -Ns
-# curl -sSL \
-#   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install_mavlink.patch \
-#   | patch -p1 -Ns
 
 # Fix brew linking of qt5
 echo -e "\033[36m> Fixing brew linking of qt5...\033[0m"
@@ -369,7 +354,7 @@ brew unlink qt && brew link qt@5
 # ------------------------------------------------------------------------------
 # Building
 printf '\n\n\033[34m'; printf '=%.0s' {1..75}; printf '\033[0m\n'
-echo -e "\033[34m### [5/6] Building (This may take about 15 minutes)\033[0m"
+echo -e "\033[34m### [5/6] Building (This may take about 10 minutes)\033[0m"
 printf '\033[34m%.0s=\033[0m' {1..75} && echo
 # ------------------------------------------------------------------------------
 if ! python3.11 -m colcon build --symlink-install --cmake-args \
@@ -410,10 +395,10 @@ fi
 curl -s -O https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/setenv_mavros.sh
 
 # Replace string inside sentenv.sh
-sed -i '' "s|ROS_INSTALL_ROOT|$ROS_INSTALL_ROOT|g" setenv_mavros.sh
-sed -i '' "s|VIRTUAL_ENV_ROOT|$VIRTUAL_ENV_ROOT|g" setenv_mavros.sh
-sed -i '' "s|GZ_INSTALL_ROOT|$GZ_INSTALL_ROOT|g" setenv_mavros.sh
-sed -i '' "s|MAVROS_INSTALL_ROOT|$MAVROS_INSTALL_ROOT|g" setenv_mavros.sh
+sed -i '' "s|/ROS_INSTALL_ROOT/|/$ROS_INSTALL_ROOT/|g" setenv_mavros.sh
+sed -i '' "s|/VIRTUAL_ENV_ROOT/|/$VIRTUAL_ENV_ROOT/|g" setenv_mavros.sh
+sed -i '' "s|/GZ_INSTALL_ROOT/|/$GZ_INSTALL_ROOT/|g" setenv_mavros.sh
+sed -i '' "s|/MAVROS_INSTALL_ROOT/|/$MAVROS_INSTALL_ROOT/|g" setenv_mavros.sh
 
 # Rename sentenv.sh to activate_ros
 if [ -f "$HOME/$ROS_INSTALL_ROOT/activate_ros" ]; then
@@ -428,19 +413,20 @@ echo
 echo "To activate the new ROS2 Jazzy - Gazebo Harmonic framework, run the following command:"
 echo -e "\033[32msource $HOME/$VIRTUAL_ENV_ROOT/activate_ros\033[0m"
 echo -e "\nThen, try '\033[32mros2\033[0m' or '\033[32mrviz2\033[0m' in the terminal to start ROS2 Jazzy."
-echo -e "\nTo test gazebo, \033[31mrun following commands separately in two termianls (one for server(-s) and one for gui(-g))"
-echo -e "(IMPORTANT, both terminals should have \033[0msource $HOME/$VIRTUAL_ENV_ROOT/activate_ros\033[31m activated)\033[0m"
-echo -e '\033[32m gz sim shapes.sdf -s \033[0m'
-echo -e '\033[32m gz sim -g \033[0m'
+echo -e "\nTo test gazebo, \033[33mrun following commands separately in two termianls (one for server(-s) and one for gui(-g))"
+echo -e "\033[31m(IMPORTANT, both terminals should have \033[0m'source $HOME/$VIRTUAL_ENV_ROOT/activate_ros'\033[31m activated)\033[0m"
+echo -e "  [1st Terminal with ($VIRTUAL_ENV_ROOT)]\033[32m gz sim shapes.sdf -s \033[0m"
+echo -e "  [2nd Terminal with ($VIRTUAL_ENV_ROOT)]\033[32m gz sim -g \033[0m"
+echo -e "\nTo test MAVROS, first connect Matek with ardupilot installed on machine"
+echo -e "Then, \033[33mrun following commands separately in two termianls"
+echo -e "\033[31m(IMPORTANT, both terminals should have \033[0m'source $HOME/$VIRTUAL_ENV_ROOT/activate_ros'\033[31m activated)\033[0m"
+echo -e "To connect with mavros:"
+echo -e "  [1st Terminal with ($VIRTUAL_ENV_ROOT)]\033[32m ros2 launch matek_imu matek_imu.launch \033[0m"
+echo -e "To read imu sensor data:"
+echo -e "  [2nd Terminal with ($VIRTUAL_ENV_ROOT)]\033[32m ros2 topic echo /mavros/imu/data_raw \033[0m"
+echo -e "If you can't read data and 'ros2 topic list' doesn't show anything, it is possible that ros2 daemon is collided."
+echo -e "try 'ros2 daemon stop && ros2 daemon start' and try again."
 printf '\033[32m%.0s=\033[0m' {1..75} && echo
-
-# For mavros
-echo -e "\n\033[32mTo test MAVROS, first connect Matek with ardupilot installed on machine\033[0m"
-echo -e "\033[32mThen, run the following command in a new terminal (with \033[0msource $HOME/$VIRTUAL_ENV_ROOT/activate_ros\033[32m activated)\033[0m"
-echo -e "\033[32mros2 launch matek_imu matek_imu.launch\033[0m"
-echo -e "\033[32mThen, on run following command on next terminal to read imu sensor data.\033[0m"
-echo -e "\033[32mros2 topic echo /imu/data\033[0m"
-
 echo "To make alias for fast start, run the following command to add to ~/.zprofile:"
 echo -e "\033[34mecho 'alias ros=\"source $HOME/$ROS_INSTALL_ROOT/activate_ros\"' >> ~/.zprofile && source ~/.zprofile\033[0m"
 echo

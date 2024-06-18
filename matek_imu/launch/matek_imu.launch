@@ -21,7 +21,6 @@
 		<arg name="respawn_mavros" value="$(var respawn_mavros)" />
 		<arg name="namespace" value="$(var namespace)"/>
 	</include>
-    <remap from="imu_topic" to="/mavros/imu/data" />
     
     <node pkg="tf2_ros" exec="static_transform_publisher" name="tf_world2fcu" args="0 0 0 0 0 0 fcu world" />
 	<node pkg="rviz2" exec="rviz2" name="rviz" />
