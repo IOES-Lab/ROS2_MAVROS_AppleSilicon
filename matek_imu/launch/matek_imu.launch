@@ -1,0 +1,28 @@
+<launch>
+	<!-- vim:set ft=xml noet : -->
+	<!-- This launch starts mavros and rviz with settings for imu test -->
+
+	<arg name="fcu_url" default="/dev/cu.usbmodem1101" />
+	<arg name="gcs_url" default="" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="1" />
+	<arg name="log_output" default="screen" />
+	<arg name="fcu_protocol" default="v2.0" />
+	<arg name="respawn_mavros" default="false" />
+	<arg name="namespace" default="mavros"/>
+	<include file="$(find-pkg-share mavros)/launch/node.launch">
+		<arg name="pluginlists_yaml" value="$(find-pkg-share mavros)/launch/apm_pluginlists.yaml" />
+		<arg name="config_yaml" value="$(find-pkg-share mavros)/launch/apm_config.yaml" />
+		<arg name="fcu_url" value="$(var fcu_url)" />
+		<arg name="gcs_url" value="$(var gcs_url)" />
+		<arg name="tgt_system" value="$(var tgt_system)" />
+		<arg name="tgt_component" value="$(var tgt_component)" />
+		<arg name="fcu_protocol" value="$(var fcu_protocol)" />
+		<arg name="respawn_mavros" value="$(var respawn_mavros)" />
+		<arg name="namespace" value="$(var namespace)"/>
+	</include>
+    <remap from="imu_topic" to="/mavros/imu/data" />
+    
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="tf_world2fcu" args="0 0 0 0 0 0 fcu world" />
+	<node pkg="rviz2" exec="rviz2" name="rviz" />
+</launch>
