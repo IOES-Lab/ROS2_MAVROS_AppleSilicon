@@ -357,7 +357,10 @@ cd "$HOME/$MAVROS_INSTALL_ROOT" || exit
 # Patch for mavlink
 echo -e "\033[36m> Applying patch for mavlink...\033[0m"
 curl -sSL \
-  https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavlink.patch \
+  https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install_mavlink.patch \
+  | patch -p1 -Ns
+curl -sSL \
+  https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavlink_generator.patch \
   | patch -p1 -Ns
 
 # Fix brew linking of qt5
