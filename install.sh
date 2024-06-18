@@ -77,14 +77,13 @@ echo "|                                                                         
 echo "|  First created at 2024.6.18       by Choi Woen-Sug(Github:woensug-choi) |"
 echo "▣-------------------------------------------------------------------------▣"
 echo -e "| Current Installer Version Hash : \033[94m$LATEST_COMMIT_HASH\033[0m   \033[32m"
-echo -e "| Target Jazzy Release Version   :" "\033[94m$JAZZY_RELEASE_TAG\033[0m"
-echo -e "\033[32m|\033[0m Target Installation Directory  :" "\033[94m$HOME/$MAVROS_INSTALL_ROOT\033[0m"
+echo -e "\033[32m| Target Installation Directory  :\033[0m" "\033[94m$HOME/$MAVROS_INSTALL_ROOT\033[0m"
 echo -e "\033[32m|\033[0m ROS2 Installation Directory    :" "\033[94m$HOME/$ROS_INSTALL_ROOT\033[0m"
 echo -e "\033[32m|\033[0m Virtual Environment Directory  :" "\033[94m$HOME/$VIRTUAL_ENV_ROOT\033[0m"
 echo -e "\033[32m▣-------------------------------------------------------------------------▣\033[0m"
 echo -e "Source code at: "
 echo -e "https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/install.sh\n"
-echo -e "\033[33m⚠️ WARNING: The FAN WILL BURST out and make macbook to take off. Be warned!\033[0m"
+echo -e "\033[33m⚠️  WARNING: The FAN WILL BURST out and make macbook to take off. Be warned!\033[0m"
 echo -e "\033[33m         To terminate at any process, press Ctrl+C.\033[0m"
 
 # If running in a GitHub Actions workflow, run pre-script first
@@ -100,8 +99,7 @@ trap 'echo -e "\033[31m\nInstallation aborted.\033[0m"; exit' SIGINT
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     # Prompt the user and wait for a response with a timeout of 10 seconds
     echo -e '\033[96m\n💡 The installation will continue automatically in 10 seconds unless you respond. \033[0m'
-    echo -e '\033[96m\n💡 Do you want to proceed now? [y/n]: \033[0m'
-    read -n 1 -r -t 10 response
+    read -p $'\033[96m   Do you want to proceed now? [y/n]: \033[0m' -n 1 -r -t 10 response
     echo # Move to a new line after the user input
 
     # Default to 'y' if no response is given within the timeout
@@ -307,6 +305,7 @@ max_retries=3
 # Start loop
 for ((i=1;i<=max_retries;i++)); do
     # Try to import the repositories
+    cd "$HOME/$MAVROS_INSTALL_ROOT" || exit
     if vcs import --force --shallow --retry 0 \
         --input https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/repos.yaml src;
         then
