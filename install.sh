@@ -93,41 +93,21 @@ if [[ -n "$GITHUB_ACTIONS" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/IOES-Lab/ROS2_Jazzy_MacOS_Native_AppleSilicon/main/install.sh)" -- -a
 fi
 
+# Trap SIGINT (Ctrl+C) and exit cleanly
+trap 'echo -e "\033[31m\nInstallation aborted.\033[0m"; exit' SIGINT
 
 # Check if the script is running in a GitHub Actions workflow
 if [[ -z "$GITHUB_ACTIONS" ]]; then
-    # Type yes to continue if not auto type
-    echo -e '\033[96m\n💡 Do you want to continue? [y/n]: \033[0m'
-    # Start a background process for the countdown and automatic response
-    (
-        # Show a countdown for 10 seconds
-        for i in {10..1}
-        do
-            # shellcheck disable=SC2059
-            printf "\r   Continuing in $i seconds..."
-            sleep 1
-        done
+    # Prompt the user and wait for a response with a timeout of 10 seconds
+    echo -e '\033[96m\n💡 The installation will continue automatically in 10 seconds unless you respond. \033[0m'
+    echo -e '\033[96m\n💡 Do you want to proceed now? [y/n]: \033[0m'
+    read -n 1 -r -t 10 response
+    echo # Move to a new line after the user input
 
-        # Clear the line
-        printf "\r"
-
-        # Send 'y'
-        echo 'y' 
-    ) &
-
-    # Save the PID of the background process and disown it
-    bg_pid=$!
-    disown $bg_pid
-
-    # Read the user's response in the foreground
-    read -n 1 -r response
-
-    # If the user responded, kill the background process
-    if [[ -n "$response" ]]; then
-        kill "$bg_pid" >/dev/null 2>&1
-    fi
+    # Default to 'y' if no response is given within the timeout
+    response=${response:-y}
 else
-    # If running in a GitHub Actions workflow, automatically set the response to 'y'
+    # Automatically set the response to 'y' in a GitHub Actions workflow
     response='y'
 fi
 
@@ -136,7 +116,6 @@ if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo -e "\033[31m\nInstallation aborted.\033[0m"
     exit 1
 fi
-
 
 # ------------------------------------------------------------------------------
 # Check System
