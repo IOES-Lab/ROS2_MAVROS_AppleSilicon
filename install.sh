@@ -266,7 +266,7 @@ tar xfpz v1.44.tar.gz && rm v1.44.tar.gz && mv GeographicLib-1.44 GeographicLib
 cd GeographicLib || exit
 
 # Build GeographicLib
-mkdir BUILD && cd BUILD || exit
+mkdir -p BUILD && cd BUILD || exit
 ../configure
 make && make install
 
@@ -323,8 +323,9 @@ for ((i=1;i<=max_retries;i++)); do
     sleep 5
 done
 
-echo -e "\033[36m> Applying patch for mavros...\033[0m"
+echo -e "\033[36m> Git clone matek_imu test package...\033[0m"
 git clone https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon.git src/matek_imu
+
 
 # ------------------------------------------------------------------------------
 # Patch files for Mac OS X Installation
@@ -334,9 +335,11 @@ printf '\033[34m%.0s=\033[0m' {1..75} && echo
 # ------------------------------------------------------------------------------
 # Patch for mavros
 echo -e "\033[36m> Applying patch for mavros...\033[0m"
+cd src/mavros || exit
 curl -sSL \
   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavros.patch \
   | patch -p1 -Ns
+cd "$HOME/$MAVROS_INSTALL_ROOT" || exit
 
 # Fix brew linking of qt5
 echo -e "\033[36m> Fixing brew linking of qt5...\033[0m"
