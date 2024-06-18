@@ -23,3 +23,8 @@ repositories:
     type: git
     url: https://github.com/ros/eigen_stl_containers.git
     version: 1.0.0
+
+  diagnostics:
+    type: git
+    url: https://github.com/ros/diagnostics.git
+    version: ros2

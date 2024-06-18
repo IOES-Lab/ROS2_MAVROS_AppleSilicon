@@ -186,7 +186,7 @@ fi
 # Check if Installation dir already exists and warn user
 echo -e "\033[34m> Check Installation Directory\033[0m"
 if [ -d "$HOME/$MAVROS_INSTALL_ROOT" ]; then
-    echo -e "\033[33m⚠️ WARNING: The directory $MAVROS_INSTALL_ROOT already exists at home ($HOME)."
+    echo -e "\033[33m⚠️  WARNING: The directory $MAVROS_INSTALL_ROOT already exists at home ($HOME)."
     echo -e "\033[33m         This script will merge and overwrite the existing directory.\033[0m"
     echo -e "\033[96mDo you want to continue? [y/n/r/c]\033[0m"
     read -p "(y) Merge (n) Cancel (r) Change directory, (c) Clean re-install: " -n 1 -r
@@ -251,37 +251,36 @@ source "$HOME/$VIRTUAL_ENV_ROOT/bin/activate"
 source "$HOME/$ROS_INSTALL_ROOT/install/setup.bash"
 
 # Install dependencies
-python3 -m pip install --upgrade pip
-python3 -m pip install -U future pyproj
+# python3 -m pip install --upgrade pip
+# python3 -m pip install -U future pyproj
 
-# Confirm message
-echo -e "\033[36m> Packages installation with PIP completed.\033[0m"
+# # Confirm message
+# echo -e "\033[36m> Packages installation with PIP completed.\033[0m"
 
-# Install GeographicLib
-echo -e "\033[36m> Installing GeographicLib...\033[0m"
-wget https://github.com/ObjSal/GeographicLib/archive/refs/tags/v1.44.tar.gz
-tar xfpz v1.44.tar.gz && rm v1.44.tar.gz
-if [ -d "GeographicLib" ]; then
-    rm -rf GeographicLib
-fi
-mv GeographicLib-1.44 GeographicLib
-cd GeographicLib || exit
+# # Install GeographicLib
+# echo -e "\033[36m> Installing GeographicLib...\033[0m"
+# wget https://github.com/ObjSal/GeographicLib/archive/refs/tags/v1.44.tar.gz
+# tar xfpz v1.44.tar.gz && rm v1.44.tar.gz
+# if [ -d "GeographicLib" ]; then
+#     rm -rf GeographicLib
+# fi
+# mv GeographicLib-1.44 GeographicLib
+# cd GeographicLib || exit
 
-# Build GeographicLib
-mkdir -p BUILD && cd BUILD || exit
-../configure
-make && make install
+# # Build GeographicLib
+# mkdir -p BUILD && cd BUILD || exit
+# ../configure
+# make && make install
 
-# Download GeographicLib Datasets
-echo -e "\033[36m> Downloading GeographicLib datasets...\033[0m"
-geographiclib-get-geoids egm96-5
-geographiclib-get-gravity egm96
-geographiclib-get-magnetic emm2015
+# # Download GeographicLib Datasets
+# echo -e "\033[36m> Downloading GeographicLib datasets...\033[0m"
+# geographiclib-get-geoids egm96-5
+# geographiclib-get-gravity egm96
+# geographiclib-get-magnetic emm2015
 
 # Set Environment Variables
 echo -e "\033[36m> Setting Environment Variables of Brew packages...(OPENSSL_ROOT_DIR, CMAKE_PREFIX_PATH, PATH)\033[0m"
 export GEOGRAPHICLIB_GEOID_PATH=/usr/local/share/GeographicLib
-export CMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:$CMAKE_MODULE_PATH
 # Disable notification error on mac
 export COLCON_EXTENSION_BLOCKLIST=colcon_core.event_handler.desktop_notification
 
@@ -328,17 +327,17 @@ done
 echo -e "\033[36m> Git clone matek_imu test package...\033[0m"
 git clone https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon.git src/matek_imu
 
-# Compile once to generate structure to apply patch (for libmavconn edian)
-echo -e "\033[36m> Compiling to generate structure to apply patch...\033[0m"
-python3.11 -m colcon build --symlink-install --cmake-args \
-  -DPython3_EXECUTABLE="$HOME/$VIRTUAL_ENV_ROOT/bin/python3" \
-  -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
-  -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:"$CMAKE_MODULE_PATH" \
-  -Wno-dev \
-  --no-warn-unused-cli \
-  -DBUILD_TESTING=OFF \
-  -DCMAKE_BUILD_TYPE=Release \
-  --cmake-force-configure --packages-up-to mavlink
+# # Compile once to generate structure to apply patch (for libmavconn edian)
+# echo -e "\033[36m> Compiling to generate structure to apply patch...\033[0m"
+# python3.11 -m colcon build --symlink-install --cmake-args \
+#   -DPython3_EXECUTABLE="$HOME/$VIRTUAL_ENV_ROOT/bin/python3" \
+#   -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
+#   -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:\$CMAKE_MODULE_PATH \
+#   -Wno-dev \
+#   --no-warn-unused-cli \
+#   -DBUILD_TESTING=OFF \
+#   -DCMAKE_BUILD_TYPE=Release \
+#   --cmake-force-configure --packages-up-to mavlink
 
 # ------------------------------------------------------------------------------
 # Patch files for Mac OS X Installation
@@ -357,11 +356,11 @@ cd "$HOME/$MAVROS_INSTALL_ROOT" || exit
 # Patch for mavlink
 echo -e "\033[36m> Applying patch for mavlink...\033[0m"
 curl -sSL \
-  https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install_mavlink.patch \
-  | patch -p1 -Ns
-curl -sSL \
   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavlink_generator.patch \
   | patch -p1 -Ns
+# curl -sSL \
+#   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install_mavlink.patch \
+#   | patch -p1 -Ns
 
 # Fix brew linking of qt5
 echo -e "\033[36m> Fixing brew linking of qt5...\033[0m"
@@ -376,7 +375,7 @@ printf '\033[34m%.0s=\033[0m' {1..75} && echo
 if ! python3.11 -m colcon build --symlink-install --cmake-args \
         -DPython3_EXECUTABLE="$HOME/$VIRTUAL_ENV_ROOT/bin/python3" \
         -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
-        -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:"$CMAKE_MODULE_PATH" \
+        -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:\$CMAKE_MODULE_PATH \
         -Wno-dev \
         --no-warn-unused-cli \
         -DBUILD_TESTING=OFF \
