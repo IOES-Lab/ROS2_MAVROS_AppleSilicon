@@ -17,3 +17,12 @@
 # mavros 설치 스크립트
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install.sh)"
 ```
+
+
+## Notes
+
+- USB 연결 포트 찾기
+
+  ```bash
+  system_profiler SPUSBDataType | awk '/ArduPilot/{found=1} found && /Location ID/{print "/dev/cu.usbmodem" int(substr($3,3,3) "01"); found=0}'
+  ```
