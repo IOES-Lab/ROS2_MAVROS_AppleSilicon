@@ -189,7 +189,7 @@ if [ -d "$HOME/$MAVROS_INSTALL_ROOT" ]; then
     echo -e "\033[33m⚠️ WARNING: The directory $MAVROS_INSTALL_ROOT already exists at home ($HOME)."
     echo -e "\033[33m         This script will merge and overwrite the existing directory.\033[0m"
     echo -e "\033[96mDo you want to continue? [y/n/r/c]\033[0m"
-    read -p "(y) Merge (n) Cancel (r) Change directory, (c) Force reinstall: " -n 1 -r
+    read -p "(y) Merge (n) Cancel (r) Change directory, (c) Clean re-install: " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo -e "\033[33mMerging and overwriting existing directory...\033[0m"
@@ -204,10 +204,6 @@ if [ -d "$HOME/$MAVROS_INSTALL_ROOT" ]; then
         echo -e "\033[33mPerforming clean reinstall...\033[0m"
         # shellcheck disable=SC2115
         rm -rf "$HOME/$MAVROS_INSTALL_ROOT"
-        if [ -d "$HOME/$VIRTUAL_ENV_ROOT" ]; then
-            # shellcheck disable=SC2115
-            rm -rf "$HOME/$VIRTUAL_ENV_ROOT"
-        fi
     else
         echo -e "\033[31mInstallation aborted.\033[0m"
         exit 1
@@ -232,8 +228,8 @@ printf '\n\n\033[34m'; printf '=%.0s' {1..75}; printf '\033[0m\n'
 echo -e "\033[34m### [2/6] Installing Dependencies with Brew and PIP\033[0m"
 printf '\033[34m%.0s=\033[0m' {1..75} && echo
 # ------------------------------------------------------------------------------
-# Installing ros2 dependencies with brew
-echo -e "\033[36m> Installing ROS2 dependencies with Brew...\033[0m"
+# Installing dependencies with brew
+echo -e "\033[36m> Installing dependencies with Brew...\033[0m"
 brew install yaml-cpp
 
 # Confirm message
@@ -250,7 +246,9 @@ fi
 
 # Activate Python3.11 virtual environment
 # shellcheck disable=SC1091,SC1090
-source "$HOME/$VIRTUAL_ENV_ROOT"/bin/activate
+source "$HOME/$VIRTUAL_ENV_ROOT/bin/activate"
+# shellcheck disable=SC1091,SC1090
+source "$HOME/$ROS_INSTALL_ROOT/install/setup.bash"
 
 # Install dependencies
 python3 -m pip install --upgrade pip
@@ -262,7 +260,11 @@ echo -e "\033[36m> Packages installation with PIP completed.\033[0m"
 # Install GeographicLib
 echo -e "\033[36m> Installing GeographicLib...\033[0m"
 wget https://github.com/ObjSal/GeographicLib/archive/refs/tags/v1.44.tar.gz
-tar xfpz v1.44.tar.gz && rm v1.44.tar.gz && mv GeographicLib-1.44 GeographicLib
+tar xfpz v1.44.tar.gz && rm v1.44.tar.gz
+if [ -d "GeographicLib" ]; then
+    rm -rf GeographicLib
+fi
+mv GeographicLib-1.44 GeographicLib
 cd GeographicLib || exit
 
 # Build GeographicLib
@@ -326,6 +328,17 @@ done
 echo -e "\033[36m> Git clone matek_imu test package...\033[0m"
 git clone https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon.git src/matek_imu
 
+# Compile once to generate structure to apply patch (for libmavconn edian)
+echo -e "\033[36m> Compiling to generate structure to apply patch...\033[0m"
+python3.11 -m colcon build --symlink-install --cmake-args \
+  -DPython3_EXECUTABLE="$HOME/$VIRTUAL_ENV_ROOT/bin/python3" \
+  -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
+  -DCMAKE_MODULE_PATH=/usr/local/share/cmake/GeographicLib:"$CMAKE_MODULE_PATH" \
+  -Wno-dev \
+  --no-warn-unused-cli \
+  -DBUILD_TESTING=OFF \
+  -DCMAKE_BUILD_TYPE=Release \
+  --cmake-force-configure --packages-up-to mavlink
 
 # ------------------------------------------------------------------------------
 # Patch files for Mac OS X Installation
@@ -340,6 +353,12 @@ curl -sSL \
   https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavros.patch \
   | patch -p1 -Ns
 cd "$HOME/$MAVROS_INSTALL_ROOT" || exit
+
+# Patch for mavlink
+echo -e "\033[36m> Applying patch for mavlink...\033[0m"
+curl -sSL \
+  https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/mavlink.patch \
+  | patch -p1 -Ns
 
 # Fix brew linking of qt5
 echo -e "\033[36m> Fixing brew linking of qt5...\033[0m"
@@ -412,6 +431,14 @@ echo -e "(IMPORTANT, both terminals should have \033[0msource $HOME/$VIRTUAL_ENV
 echo -e '\033[32m gz sim shapes.sdf -s \033[0m'
 echo -e '\033[32m gz sim -g \033[0m'
 printf '\033[32m%.0s=\033[0m' {1..75} && echo
+
+# For mavros
+echo -e "\n\033[32mTo test MAVROS, first connect Matek with ardupilot installed on machine\033[0m"
+echo -e "\033[32mThen, run the following command in a new terminal (with \033[0msource $HOME/$VIRTUAL_ENV_ROOT/activate_ros\033[32m activated)\033[0m"
+echo -e "\033[32mros2 launch matek_imu matek_imu.launch\033[0m"
+echo -e "\033[32mThen, on run following command on next terminal to read imu sensor data.\033[0m"
+echo -e "\033[32mros2 topic echo /imu/data\033[0m"
+
 echo "To make alias for fast start, run the following command to add to ~/.zprofile:"
 echo -e "\033[34mecho 'alias ros=\"source $HOME/$ROS_INSTALL_ROOT/activate_ros\"' >> ~/.zprofile && source ~/.zprofile\033[0m"
 echo
