@@ -378,9 +378,11 @@ printf '\n\n\033[34m'; printf '=%.0s' {1..75}; printf '\033[0m\n'
 echo -e "\033[34m### [6/6] Post Installation Configuration\033[0m"
 printf '\033[34m%.0s=\033[0m' {1..75} && echo
 # ------------------------------------------------------------------------------
-# save GZ_INSTALL_ROOT in a file
+# save MAVROS_INSTALL_ROOT in a file
 if [ -f "$HOME/.ros2_jazzy_install_config" ]; then
     echo "MAVROS_INSTALL_ROOT=$MAVROS_INSTALL_ROOT" >> "$HOME/.ros2_jazzy_install_config"
+    # shellcheck disable=SC1091
+    source "$HOME/.ros2_jazzy_install_config"
 fi
 
 # Download sentenv.sh
