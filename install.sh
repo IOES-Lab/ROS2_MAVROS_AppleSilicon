@@ -230,7 +230,7 @@ printf '\033[34m%.0s=\033[0m' {1..75} && echo
 # ------------------------------------------------------------------------------
 # Installing dependencies with brew
 echo -e "\033[36m> Installing dependencies with Brew...\033[0m"
-brew install yaml-cpp
+brew install yaml-cpp wget
 
 # Confirm message
 echo -e "\033[36m\n> Packages installation with Brew completed.\033[0m"
@@ -270,7 +270,8 @@ cd GeographicLib || exit
 # Build GeographicLib
 mkdir -p BUILD && cd BUILD || exit
 ../configure
-make && make install
+chmod "$USER" /usr/local
+make -j4 && make install
 
 # Download GeographicLib Datasets
 echo -e "\033[36m> Downloading GeographicLib datasets...\033[0m"
