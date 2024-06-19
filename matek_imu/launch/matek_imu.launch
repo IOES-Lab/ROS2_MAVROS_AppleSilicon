@@ -3,7 +3,7 @@
 	<!-- This launch starts mavros and rviz with settings for imu test -->
 
 	<arg name="fcu_url" default="/dev/cu.usbmodem1101" />
-	<arg name="gcs_url" default="" />
+	<arg name="gcs_url" default="udp://@localhost" />
 	<arg name="tgt_system" default="1" />
 	<arg name="tgt_component" default="1" />
 	<arg name="log_output" default="screen" />
