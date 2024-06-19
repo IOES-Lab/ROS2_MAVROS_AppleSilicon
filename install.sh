@@ -251,32 +251,32 @@ source "$HOME/$VIRTUAL_ENV_ROOT/bin/activate"
 source "$HOME/$ROS_INSTALL_ROOT/install/setup.bash"
 
 # Install dependencies
-# python3 -m pip install --upgrade pip
-# python3 -m pip install -U future pyproj
+python3 -m pip install --upgrade pip
+python3 -m pip install -U future pyproj
 
-# # Confirm message
-# echo -e "\033[36m> Packages installation with PIP completed.\033[0m"
+# Confirm message
+echo -e "\033[36m> Packages installation with PIP completed.\033[0m"
 
-# # Install GeographicLib
-# echo -e "\033[36m> Installing GeographicLib...\033[0m"
-# wget https://github.com/ObjSal/GeographicLib/archive/refs/tags/v1.44.tar.gz
-# tar xfpz v1.44.tar.gz && rm v1.44.tar.gz
-# if [ -d "GeographicLib" ]; then
-#     rm -rf GeographicLib
-# fi
-# mv GeographicLib-1.44 GeographicLib
-# cd GeographicLib || exit
+# Install GeographicLib
+echo -e "\033[36m> Installing GeographicLib...\033[0m"
+wget https://github.com/ObjSal/GeographicLib/archive/refs/tags/v1.44.tar.gz
+tar xfpz v1.44.tar.gz && rm v1.44.tar.gz
+if [ -d "GeographicLib" ]; then
+    rm -rf GeographicLib
+fi
+mv GeographicLib-1.44 GeographicLib
+cd GeographicLib || exit
 
-# # Build GeographicLib
-# mkdir -p BUILD && cd BUILD || exit
-# ../configure
-# make && make install
+# Build GeographicLib
+mkdir -p BUILD && cd BUILD || exit
+../configure
+make && make install
 
-# # Download GeographicLib Datasets
-# echo -e "\033[36m> Downloading GeographicLib datasets...\033[0m"
-# geographiclib-get-geoids egm96-5
-# geographiclib-get-gravity egm96
-# geographiclib-get-magnetic emm2015
+# Download GeographicLib Datasets
+echo -e "\033[36m> Downloading GeographicLib datasets...\033[0m"
+geographiclib-get-geoids egm96-5
+geographiclib-get-gravity egm96
+geographiclib-get-magnetic emm2015
 
 # Set Environment Variables
 echo -e "\033[36m> Setting Environment Variables of Brew packages...(OPENSSL_ROOT_DIR, CMAKE_PREFIX_PATH, PATH)\033[0m"
