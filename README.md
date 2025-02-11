@@ -17,8 +17,10 @@ Now, to install `mavros`, proceed as follows:
 ```
 # mavros installation script
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install.sh)"
-Notes
+
 ```
+
+## Notes
 
 - Finding the USB connection port
   ```
