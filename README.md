@@ -1,5 +1,7 @@
 # Installing MAVROS on Apple Silicon
 
+[![Build on macOS](https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/actions/workflows/build.yml/badge.svg)](https://github.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/actions/workflows/build.yml)
+
 ## How-to
 
 First, complete the installation of ROS2 Jazzy and Gazebo using [ROS2_Jazzy_MacOS_Native_AppleSilicon](https://github.com/IOES-Lab/ROS2_Jazzy_MacOS_Native_AppleSilicon).

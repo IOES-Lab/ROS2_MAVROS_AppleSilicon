@@ -1,0 +1,39 @@
+name: Build on macOS
+on: push
+
+# Run locally with
+# brew install act
+# act -P macos-latest=-self-hosted
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: |
+          brew update
+          brew install gh curl
+          
+      - name: Run install script (ROS2 Jazzy Gazebo Harmonic)
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/IOES-Lab/ROS2_Jazzy_MacOS_Native_AppleSilicon/main/install.sh)" -- -a
+          if [ $? -ne 0 ]; then
+            exit 1
+          fi
+          
+      - name: Run install script (MAVROS)
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/IOES-Lab/ROS2_MAVROS_AppleSilicon/main/install.sh)" -- -a
+          if [ $? -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Run Test (ROS2 Jazzy)
+        run: |
+          source ~/ros2_jazzy/activate_ros && cd ~/ros2_jazzy && colcon test-result --all --verbose
+          if [ $? -ne 0 ]; then
+            exit 1
+          fi
